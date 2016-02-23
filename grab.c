@@ -96,9 +96,14 @@ void grab_key_button_checked(xcb_keycode_t keycode, xcb_button_t button, uint16_
 
 void ungrab(void)
 {
+	xcb_void_cookie_t cookie;
+
 	PUTS("ungrab");
 	xcb_ungrab_key(dpy, XCB_GRAB_ANY, root, XCB_BUTTON_MASK_ANY);
-	xcb_ungrab_button(dpy, XCB_BUTTON_INDEX_ANY, root, XCB_MOD_MASK_ANY);
+	cookie = xcb_ungrab_button(dpy, XCB_BUTTON_INDEX_ANY, root, XCB_MOD_MASK_ANY);
 	xcb_flush(dpy);
+
+	// Wait for the ungrab to be performed by the X server
+	xcb_request_check(dpy, cookie);
 	grabbed = false;
 }
